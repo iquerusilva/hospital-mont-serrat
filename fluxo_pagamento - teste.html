@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo de Notas Fiscais - HMS</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .hms-bar { background: var(--primary); color: white; padding: 12px 25px; text-align: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .hms-header { font-size: 1.4em; letter-spacing: 1px; }
+        #login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-box { background: white; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        .login-box h1 { color: var(--primary); margin-bottom: 20px; }
+        .login-box button { padding: 15px 30px; margin: 10px; cursor: pointer; border: none; border-radius: 8px; background: var(--accent); color: white; font-weight: bold; transition: 0.3s; }
+        .login-box button:hover { background: #2980b9; transform: translateY(-2px); }
+        .main-wrapper { padding: 20px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .sub-header { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; border-top: 5px solid var(--accent); shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card h3 { margin-top: 0; color: #e67e22; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .step { display: flex; align-items: center; padding: 8px; margin: 8px 0; border-radius: 6px; transition: 0.2s; }
+        .step.locked { background: #e8f8f5; color: #27ae60; font-weight: bold; }
+        .step.disabled { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+        .step input { width: 20px; height: 20px; margin-right: 12px; cursor: pointer; }
+        .log-list { font-size: 0.75em; color: #7f8c8d; background: #f9f9f9; padding: 10px; border-radius: 6px; max-height: 90px; overflow-y: auto; margin-top: 15px; border-left: 3px solid #bdc3c7; line-height: 1.4; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: var(--accent); z-index: 1100; display: none; animation: loading 2s infinite; }
+        @keyframes loading { 0% { width: 0; } 50% { width: 70%; } 100% { width: 100%; } }
+        .hms-footer { margin-top: auto; font-size: 0.85em; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div id="loading" class="loading-overlay"></div>
+    <div class="hms-bar hms-header">HMS - GESTÃO TI - SALVADOR</div>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>Fluxo de Notas Fiscais</h1>
+            <p>Selecione seu acesso para sincronizar:</p>
+            <button onclick="fazerLogin('Íkero')">Acessar como ÍKERO</button>
+            <button onclick="fazerLogin('Samuel')">Acessar como SAMUEL</button>
+        </div>
+    </div>
+
+    <div id="main-content" style="display:none;" class="main-wrapper">
+        <div class="sub-header">
+            <div>
+                <h2 style="margin:0; color: var(--primary);">Monitor de Pagamentos</h2>
+                <small>Usuário Ativo: <strong id="user-display"></strong> | <a href="#" onclick="location.reload()">Sair</a></small>
+            </div>
+            <div>
+                Mês: <select id="mes-select" onchange="renderizar()"></select>
+                Ano: <select id="ano-select" onchange="renderizar()"></select>
+            </div>
+        </div>
+        <div class="container" id="cards-container"></div>
+    </div>
+
+    <div class="hms-bar hms-footer">© 2026 - Hospital Mont Serrat - TI HMS</div>
+
+<script>
+    // --- CONFIGURAÇÃO DA NUVEM ---
+    const BIN_ID = "COLE_SEU_BIN_ID_AQUI"; 
+    const API_KEY = "COLE_SUA_KEY_AQUI";
+    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+    let usuarioAtual = "";
+    const fornecedores = ["Infosol", "Maxcomp", "CPC", "Service Power", "Embratel", "ITS", "Remessa", "MRJ", "Robson", "TecnoAtiva", "TLD", "VIVO"];
+    const etapas = ["NF Chegou", "Rateio Feito", "Assinado (NF+Rateio)", "Enviado p/ Pagamento"];
+
+    // Gerar seletores de data
+    const d = new Date();
+    const mesSel = document.getElementById('mes-select');
+    const anoSel = document.getElementById('ano-select');
+    ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].forEach((m, i) => {
+        mesSel.innerHTML += `<option value="${String(i+1).padStart(2,'0')}" ${i==d.getMonth()?'selected':''}>${m}</option>`;
+    });
+    [2025, 2026, 2027].forEach(a => {
+        anoSel.innerHTML += `<option value="${a}" ${a==2026?'selected':''}>${a}</option>`;
+    });
+
+    async function fazerLogin(nome) {
+        usuarioAtual = nome;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('user-display').innerText = nome;
+        await renderizar();
+    }
+
+    async function fetchDados() {
+        document.getElementById('loading').style.display = 'block';
+        try {
+            const res = await fetch(`${API_URL}/latest`, { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            return data.record || {};
+        } catch (e) {
+            console.error("Erro ao buscar dados:", e);
+            return {};
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+
+    async function salvarDados(data) {
+        document.getElementById('loading').style.display = 'block';
+        await fetch(API_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', "X-Master-Key": API_KEY },
+            body: JSON.stringify(data)
+        });
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    async function renderizar() {
+        const container = document.getElementById('cards-container');
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Sincronizando com a nuvem...</p>';
+        
+        const db = await fetchDados();
+        container.innerHTML = '';
+        const competencia = `${mesSel.value}_${anoSel.value}`;
+
+        fornecedores.forEach(f => {
+            const id = `${f}_${competencia}`;
+            const info = db[id] || { checks: [false, false, false, false], logs: [] };
+            
+            let card = document.createElement('div');
+            card.className = 'card';
+            let html = `<h3>${f}</h3>`;
+            
+            etapas.forEach((nome, idx) => {
+                const checked = info.checks[idx];
+                const habilitado = idx === 0 || info.checks[idx - 1];
+                html += `
+                    <div class="step ${checked?'locked':(habilitado?'':'disabled')}">
+                        <input type="checkbox" ${checked?'checked disabled':(habilitado?'':'disabled')} 
+                               onchange="marcar('${f}', ${idx})">
+                        <span>${nome}</span>
+                    </div>`;
+            });
+
+            html += `<div class="log-list"><strong>Histórico:</strong><br>${info.logs.slice(0,5).join('<br>')}</div>`;
+            card.innerHTML = html;
+            container.appendChild(card);
+        });
+    }
+
+    async function marcar(fornecedor, idx) {
+        if(!confirm(`Confirmar etapa: ${etapas[idx]}?`)) { renderizar(); return; }
+        
+        const db = await fetchDados();
+        const competencia = `${mesSel.value}_${anoSel.value}`;
+        const id = `${fornecedor}_${competencia}`;
+        
+        if(!db[id]) db[id] = { checks: [false,false,false,false], logs: [] };
+        
+        db[id].checks[idx] = true;
+        db[id].logs.unshift(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}] ${usuarioAtual}: ${etapas[idx]}`);
+        
+        await salvarDados(db);
+        await renderizar();
+    }
+</script>
+</body>
+</html>
