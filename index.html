@@ -7,90 +7,141 @@
     <style>
         :root { 
             --primary: #2c3e50; --accent: #3498db; --success: #2ecc71; 
-            --danger: #e74c3c; --warning: #f1c40f; --bg: #f4f7f6; 
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --danger: #e74c3c; --bg: #f4f7f6; 
         }
         
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; min-height: 100vh; color: #333; }
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 0;
+            min-height: 100vh; 
+        }
         
-        /* Header & Nav */
-        .hms-bar { background: var(--primary); color: white; padding: 1rem; text-align: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .sub-header { 
-            background: white; padding: 1.5rem; margin-bottom: 2rem; 
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 1rem; sticky: top;
+        /* Estilo Logotipo */
+        .logo-container { text-align: center; padding: 15px; background: white; border-radius: 15px; margin-bottom: 20px; }
+        .logo-img { max-width: 100%; height: auto; width: 220px; }
+
+        .hms-bar { 
+            background: var(--primary); 
+            color: white; 
+            padding: 15px; 
+            text-align: center; 
+            font-weight: bold; 
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+        
+        /* Tela de Login Responsiva */
+        #login-screen { 
+            position: fixed; inset: 0; background: #eef2f3; 
+            display: flex; justify-content: center; align-items: center; z-index: 1000; 
+            padding: 20px;
+        }
+        .login-box { 
+            background: white; padding: 30px; border-radius: 15px; 
+            width: 100%; max-width: 400px; text-align: center; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
         }
 
-        /* Cards Layout */
+        /* Sub-header Responsivo */
+        .sub-header {
+            background: white; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        @media (min-width: 768px) {
+            .sub-header { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+
+        /* Grid de Cards */
         .container { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 20px; padding: 0 20px 40px 20px; max-width: 1600px; margin: 0 auto;
+            grid-template-columns: 1fr; 
+            gap: 15px; 
+            padding: 15px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
         }
+
+        @media (min-width: 640px) { .container { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .container { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1280px) { .container { grid-template-columns: repeat(4, 1fr); } }
 
         .card { 
-            background: white; border-radius: 12px; overflow: hidden;
-            box-shadow: var(--card-shadow); border-top: 5px solid var(--accent);
-            transition: transform 0.2s;
+            background: white; border-radius: 12px; padding: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid var(--accent);
+            display: flex; flex-direction: column;
         }
-        .card:hover { transform: translateY(-5px); }
-        .card-header { padding: 15px; background: #fafafa; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .card-header h3 { margin: 0; font-size: 1.1rem; color: var(--primary); }
-
-        /* Steps */
-        .steps-container { padding: 15px; }
+        
         .step { 
-            display: flex; align-items: center; padding: 8px 12px; margin-bottom: 8px;
-            border-radius: 8px; border: 1px solid #eee; transition: 0.3s;
+            display: flex; align-items: center; padding: 12px; 
+            margin-bottom: 8px; border-radius: 8px; border: 1px solid #f0f0f0;
+            cursor: pointer;
         }
-        .step.done { background: #eafff2; border-color: var(--success); color: #155724; }
-        .step.pending { background: #fff; }
-        .step.disabled { opacity: 0.5; background: #f9f9f9; cursor: not-allowed; }
-        .step input[type="checkbox"] { width: 18px; height: 18px; margin-right: 12px; cursor: pointer; }
-
-        /* Utils */
-        .btn { border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-save { background: var(--accent); color: white; width: 100%; margin-top: 8px; }
-        .btn-view { background: var(--success); color: white; width: 100%; text-decoration: none; display: inline-block; text-align: center; margin-top: 10px; }
+        .step.done { background: #dff0d8; border-color: #d6e9c6; color: #3c763d; font-weight: bold; }
         
-        textarea { width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 8px; box-sizing: border-box; resize: vertical; margin-top: 10px; }
-        
-        .log-box { font-size: 0.75rem; background: #f8f9fa; padding: 10px; border-radius: 6px; max-height: 80px; overflow-y: auto; margin-top: 10px; color: #666; }
-
-        /* Screens */
-        #login-screen { 
-            position: fixed; inset: 0; background: var(--primary); 
-            display: flex; justify-content: center; align-items: center; z-index: 1000; 
+        /* Inputs e Botões Mobile-Friendly */
+        select, textarea, .btn {
+            font-size: 16px; /* Evita zoom automático no iOS */
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 100%;
         }
-        .login-box { background: white; padding: 40px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; }
 
-        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--success); transition: width 0.3s; z-index: 2000; width: 0%; }
+        .btn { 
+            border: none; cursor: pointer; font-weight: bold; 
+            transition: 0.2s; margin-top: 10px; color: white;
+        }
+        .btn-login { background: var(--accent); margin-bottom: 10px; height: 50px; }
+        .btn-save { background: var(--primary); }
+
+        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--success); width: 0%; z-index: 2000; transition: width 0.4s; }
+        
+        .log-area {
+            font-size: 0.75rem; color: #777; margin-top: 12px; 
+            max-height: 60px; overflow-y: auto; background: #fdfdfd; 
+            padding: 8px; border-radius: 5px; border-left: 3px solid #eee;
+        }
     </style>
 </head>
 <body>
 
     <div id="loading-bar"></div>
-    <div class="hms-bar">HMS - GESTÃO HOSPITALAR</div>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="margin-bottom: 2rem;">Acesso ao Fluxo</h2>
-            <button class="btn btn-save" onclick="fazerLogin('Íkero')" style="padding: 15px; margin-bottom: 10px;">Entrar como ÍKERO</button>
-            <button class="btn btn-save" onclick="fazerLogin('Samuel')" style="padding: 15px; background: #34495e;">Entrar como SAMUEL</button>
+            <div class="logo-container">
+                <div style="font-weight: bold; color: var(--primary); border: 2px solid; padding: 10px; margin-bottom: 10px;">
+                    HOSPITAL MONT SERRAT<br>GOVERNO DA BAHIA
+                </div>
+                <h3 style="color: var(--primary); margin: 10px 0;">Fluxo de Notas Fiscais</h3>
+            </div>
+            <p>Toque no seu nome para entrar:</p>
+            <button class="btn btn-login" onclick="fazerLogin('Iqueru')">IQUERU</button>
+            <button class="btn btn-login" style="background:#34495e" onclick="fazerLogin('Samuel')">SAMUEL</button>
         </div>
     </div>
 
     <div id="main-content" style="display:none;">
+        <div class="hms-bar">HOSPITAL ESTADUAL MONT SERRAT</div>
+        
         <div class="sub-header">
             <div>
-                <h2 style="margin:0;">Controle de Notas</h2>
-                <small>Usuário: <b id="user-display"></b> | <a href="#" onclick="location.reload()">Trocar usuário</a></small>
+                <span style="display:block; font-size: 0.8rem; color: #666;">Usuário logado:</span>
+                <b id="user-display" style="color: var(--primary); text-transform: uppercase;"></b>
+                <a href="#" onclick="location.reload()" style="margin-left: 10px; font-size: 0.8rem; color: var(--danger); text-decoration: none;">[ Sair ]</a>
             </div>
-            
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <select id="mes-select" class="btn" onchange="carregarEApp()"></select>
-                <select id="ano-select" class="btn" onchange="carregarEApp()"></select>
-                <button class="btn" style="background: var(--danger); color: white;" onclick="limparDados()">Limpar Seleção</button>
+            <div style="display: flex; gap: 8px;">
+                <select id="mes-select" onchange="carregarDados()"></select>
+                <select id="ano-select" onchange="carregarDados()"></select>
             </div>
         </div>
 
@@ -99,31 +150,124 @@
 
 <script>
     const CONFIG = {
-        // 1. Crie uma conta gratuita em jsonbin.io
-        // 2. Crie um novo "Bin" privado com o conteúdo { }
-        // 3. Substitua o ID abaixo pelo ID do seu novo Bin
-        BIN_ID: "69a5ed9b43b1c97be9aceb72", // <--- COLOQUE SEU NOVO ID AQUI
-
-        // 4. Vá em "API Keys" no site e gere uma nova chave master
-        // 5. Substitua a chave abaixo pela sua nova chave
-        API_KEY: "$2a$10$10Z16S9LZYppQUvS3XQ8dOGXgtHvnr.OykT441FnHnEMNBwN1AbN6", // <--- COLOQUE SUA NOVA CHAVE AQUI
-        
-        // 6. Certifique-se de que o URL abaixo tenha o BIN_ID correto
-        URL: "https://api.jsonbin.io/v3/b/69a5ed9b43b1c97be9aceb72" // <--- ATUALIZE O ID NO FINAL DO URL
+        BIN_ID: "69a5ed9b43b1c97be9aceb72",
+        API_KEY: "$2a$10$10Z16S9LZYppQUvS3XQ8dOGXgtHvnr.OykT441FnHnEMNBwN1AbN6",
+        URL: "https://api.jsonbin.io/v3/b/69a5ed9b43b1c97be9aceb72"
     };
 
     let dbCache = {};
-    let user = "";
+    let usuarioLogado = "";
     const fornecedores = ["Infosol", "Maxcomp", "CPC", "Service Power", "Embratel", "ITS", "Remessa", "MRJ", "Robson", "TecnoAtiva", "TLD", "VIVO"];
-    const etapas = ["NF Chegou", "Rateio Feito", "NF + Rateio Assinados", "Enviado p/ Pagamento"];
+    const etapas = ["NF Chegou", "Rateio Feito", "Assinado (NF+Rateio)", "Enviado p/ Pagamento"];
 
-    // Init Selects
+    // Setup de Datas
     const d = new Date();
-    const mesSel = document.getElementById('mes-select');
-    const anoSel = document.getElementById('ano-select');
+    const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    
+    window.onload = () => {
+        mesesNomes.forEach((m, i) => {
+            const val = (i + 1).toString().padStart(2, '0');
+            document.getElementById('mes-select').innerHTML += `<option value="${val}" ${i === d.getMonth() ? 'selected' : ''}>${m}</option>`;
+        });
+        [2025, 2026].forEach(a => {
+            document.getElementById('ano-select').innerHTML += `<option value="${a}" ${a === d.getFullYear() ? 'selected' : ''}>${a}</option>`;
+        });
+    };
 
-    ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"].forEach((m, i) => {
-        mesSel.innerHTML += `<option value="${(i+1).toString().padStart(2,'0')}" ${i==d.getMonth()?'selected':''}>${m}</option>`;
-    });
-    [2025, 2026].forEach
+    async function fazerLogin(nome) {
+        usuarioLogado = nome;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('user-display').innerText = nome;
+        await carregarDados();
+    }
 
+    async function carregarDados() {
+        document.getElementById('loading-bar').style.width = '40%';
+        try {
+            const res = await fetch(`${CONFIG.URL}/latest`, {
+                headers: { "X-Master-Key": CONFIG.API_KEY, "X-Bin-Meta": "false" }
+            });
+            dbCache = await res.json() || {};
+            render();
+        } catch (e) {
+            alert("Erro ao conectar com o servidor.");
+        }
+        document.getElementById('loading-bar').style.width = '100%';
+        setTimeout(() => document.getElementById('loading-bar').style.width = '0%', 500);
+    }
+
+    function getID(f) { return `${f}_${document.getElementById('mes-select').value}_${document.getElementById('ano-select').value}`; }
+
+    function render() {
+        const container = document.getElementById('cards-container');
+        container.innerHTML = '';
+
+        fornecedores.forEach(f => {
+            const id = getID(f);
+            const data = dbCache[id] || { checks: [false, false, false, false], logs: [], obs: "" };
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            let html = `<h3 style="margin:0 0 15px 0; color:var(--primary); font-size:1.1rem; border-bottom:2px solid #f0f0f0; padding-bottom:5px;">${f}</h3>`;
+            
+            etapas.forEach((nome, i) => {
+                const checked = data.checks[i];
+                const bloqueado = i > 0 && !data.checks[i-1];
+                html += `
+                    <div class="step ${checked ? 'done' : ''}" onclick="${!checked && !bloqueado ? `confirmarEtapa('${f}', ${i})` : ''}">
+                        <input type="checkbox" ${checked ? 'checked disabled' : (bloqueado ? 'disabled' : '')} 
+                            style="width:22px; height:22px; margin-right:12px; pointer-events: none;">
+                        <label style="flex:1; cursor:pointer; ${bloqueado ? 'color:#ccc' : ''}">${nome}</label>
+                    </div>
+                `;
+            });
+
+            html += `
+                <textarea id="obs-${f}" rows="2" placeholder="Observações..." style="margin-top:10px;">${data.obs || ''}</textarea>
+                <button class="btn btn-save" onclick="salvarObs('${f}')">SALVAR OBSERVAÇÃO</button>
+                <div class="log-area">${data.logs.join('<br>') || 'Sem histórico.'}</div>
+            `;
+            
+            card.innerHTML = html;
+            container.appendChild(card);
+        });
+    }
+
+    async function confirmarEtapa(f, idx) {
+        if(!confirm(`Confirmar que a etapa "${etapas[idx]}" foi concluída para ${f}?`)) return;
+        
+        const id = getID(f);
+        if(!dbCache[id]) dbCache[id] = { checks: [false,false,false,false], logs: [], obs: "" };
+        
+        dbCache[id].checks[idx] = true;
+        dbCache[id].logs.unshift(`${new Date().toLocaleString('pt-BR')} - ${usuarioLogado}: ${etapas[idx]}`);
+        
+        render();
+        await sincronizar();
+    }
+
+    async function salvarObs(f) {
+        const id = getID(f);
+        if(!dbCache[id]) dbCache[id] = { checks: [false,false,false,false], logs: [], obs: "" };
+        dbCache[id].obs = document.getElementById(`obs-${f}`).value;
+        await sincronizar();
+        alert("Observação de " + f + " salva!");
+    }
+
+    async function sincronizar() {
+        document.getElementById('loading-bar').style.width = '30%';
+        try {
+            await fetch(CONFIG.URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', "X-Master-Key": CONFIG.API_KEY },
+                body: JSON.stringify(dbCache)
+            });
+        } catch (e) { alert("Erro ao salvar dados."); }
+        document.getElementById('loading-bar').style.width = '100%';
+        setTimeout(() => document.getElementById('loading-bar').style.width = '0%', 500);
+    }
+</script>
+</body>
+</html>
