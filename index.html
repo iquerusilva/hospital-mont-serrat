@@ -99,9 +99,17 @@
 
 <script>
     const CONFIG = {
-        BIN_ID: "69a5ed9b43b1c97be9aceb72",
-        API_KEY: "$2a$10$10Z16S9LZYppQUvS3XQ8dOGXgtHvnr.OykT441FnHnEMNBwN1AbN6",
-        URL: "https://api.jsonbin.io/v3/b/69a5ed9b43b1c97be9aceb72"
+        // 1. Crie uma conta gratuita em jsonbin.io
+        // 2. Crie um novo "Bin" privado com o conteúdo { }
+        // 3. Substitua o ID abaixo pelo ID do seu novo Bin
+        BIN_ID: "69a5ed9b43b1c97be9aceb72", // <--- COLOQUE SEU NOVO ID AQUI
+
+        // 4. Vá em "API Keys" no site e gere uma nova chave master
+        // 5. Substitua a chave abaixo pela sua nova chave
+        API_KEY: "$2a$10$10Z16S9LZYppQUvS3XQ8dOGXgtHvnr.OykT441FnHnEMNBwN1AbN6", // <--- COLOQUE SUA NOVA CHAVE AQUI
+        
+        // 6. Certifique-se de que o URL abaixo tenha o BIN_ID correto
+        URL: "https://api.jsonbin.io/v3/b/69a5ed9b43b1c97be9aceb72" // <--- ATUALIZE O ID NO FINAL DO URL
     };
 
     let dbCache = {};
@@ -118,3 +126,4 @@
         mesSel.innerHTML += `<option value="${(i+1).toString().padStart(2,'0')}" ${i==d.getMonth()?'selected':''}>${m}</option>`;
     });
     [2025, 2026].forEach
+
