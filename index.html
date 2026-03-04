@@ -2,255 +2,119 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Fluxo de Notas Fiscais - HMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo de NF - HMS</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        .hms-bar { background: var(--primary); color: white; padding: 10px 25px; text-align: center; font-weight: bold; }
-        .hms-header { font-size: 1.5em; letter-spacing: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 900; }
-        .hms-footer { font-size: 0.9em; padding: 15px; margin-top: auto; }
-        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .login-box { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .login-box button { padding: 12px 25px; margin: 10px; cursor: pointer; border: none; border-radius: 5px; background: var(--accent); color: white; font-weight: bold; }
-        .main-wrapper { padding: 20px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .sub-header { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .competencia-selector { background: #eef2f3; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        .btn-reset-tool { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.85em; }
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid var(--accent); }
-        .card h3 { margin: 0 0 15px 0; color: #d35400; border-bottom: 2px solid #eee; padding-bottom: 5px; text-transform: uppercase; font-size: 1.1em; }
-        .step { margin: 10px 0; display: flex; align-items: center; padding: 5px; border-radius: 5px; }
-        .step.locked { background: #e8f8f5; color: #27ae60; font-weight: bold; }
-        .step.disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-        .step input { width: 22px; height: 22px; margin-right: 12px; }
-        .obs-section { margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
-        .obs-section textarea { width: 100%; border-radius: 5px; border: 1px solid #ccc; padding: 8px; font-size: 0.85em; resize: vertical; box-sizing: border-box; }
-        .btn-obs { background: #7f8c8d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 0.8em; }
-        .file-box { background: #f8f9fa; border: 1px dashed #ced4da; padding: 12px; border-radius: 6px; margin: 10px 0; }
-        .btn-view { display: block; width: 100%; margin-top: 10px; padding: 10px; background: var(--success); color: white; text-align: center; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; text-decoration: none; }
-        .log-list { font-size: 0.72em; color: #636e72; background: #eee; padding: 8px; border-radius: 5px; max-height: 70px; overflow-y: auto; margin-top: 15px; border-left: 3px solid #b2bec3; line-height: 1.3; }
-        #loading { display:none; position:fixed; top:0; left:0; width:100%; height:4px; background:var(--accent); z-index:2000; animation: loading 2s infinite; }
-        @keyframes loading { 0%{width:0} 50%{width:50%} 100%{width:100%} }
+        :root { 
+            --primary: #2c3e50; --accent: #3498db; --success: #2ecc71; 
+            --danger: #e74c3c; --warning: #f1c40f; --bg: #f4f7f6; 
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; min-height: 100vh; color: #333; }
+        
+        /* Header & Nav */
+        .hms-bar { background: var(--primary); color: white; padding: 1rem; text-align: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .sub-header { 
+            background: white; padding: 1.5rem; margin-bottom: 2rem; 
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 1rem; sticky: top;
+        }
+
+        /* Cards Layout */
+        .container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 20px; padding: 0 20px 40px 20px; max-width: 1600px; margin: 0 auto;
+        }
+
+        .card { 
+            background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: var(--card-shadow); border-top: 5px solid var(--accent);
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card-header { padding: 15px; background: #fafafa; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h3 { margin: 0; font-size: 1.1rem; color: var(--primary); }
+
+        /* Steps */
+        .steps-container { padding: 15px; }
+        .step { 
+            display: flex; align-items: center; padding: 8px 12px; margin-bottom: 8px;
+            border-radius: 8px; border: 1px solid #eee; transition: 0.3s;
+        }
+        .step.done { background: #eafff2; border-color: var(--success); color: #155724; }
+        .step.pending { background: #fff; }
+        .step.disabled { opacity: 0.5; background: #f9f9f9; cursor: not-allowed; }
+        .step input[type="checkbox"] { width: 18px; height: 18px; margin-right: 12px; cursor: pointer; }
+
+        /* Utils */
+        .btn { border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-save { background: var(--accent); color: white; width: 100%; margin-top: 8px; }
+        .btn-view { background: var(--success); color: white; width: 100%; text-decoration: none; display: inline-block; text-align: center; margin-top: 10px; }
+        
+        textarea { width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 8px; box-sizing: border-box; resize: vertical; margin-top: 10px; }
+        
+        .log-box { font-size: 0.75rem; background: #f8f9fa; padding: 10px; border-radius: 6px; max-height: 80px; overflow-y: auto; margin-top: 10px; color: #666; }
+
+        /* Screens */
+        #login-screen { 
+            position: fixed; inset: 0; background: var(--primary); 
+            display: flex; justify-content: center; align-items: center; z-index: 1000; 
+        }
+        .login-box { background: white; padding: 40px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; }
+
+        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--success); transition: width 0.3s; z-index: 2000; width: 0%; }
     </style>
 </head>
 <body>
 
-    <div id="loading"></div>
-    <div class="hms-bar hms-header">HMS</div>
+    <div id="loading-bar"></div>
+    <div class="hms-bar">HMS - GESTÃO HOSPITALAR</div>
 
     <div id="login-screen">
         <div class="login-box">
-            <h1 style="color: var(--primary)">Gestão de Notas Fiscais</h1>
-            <h2 style="color: var(--primary)">Hospital Mont Serrat</h2>
-            <p>Selecione seu usuário:</p>
-            <button onclick="fazerLogin('Íkero')">Acessar como IQUERU</button>
-            <button onclick="fazerLogin('Samuel')">Acessar como SAMUEL</button>
+            <h2 style="margin-bottom: 2rem;">Acesso ao Fluxo</h2>
+            <button class="btn btn-save" onclick="fazerLogin('Íkero')" style="padding: 15px; margin-bottom: 10px;">Entrar como ÍKERO</button>
+            <button class="btn btn-save" onclick="fazerLogin('Samuel')" style="padding: 15px; background: #34495e;">Entrar como SAMUEL</button>
         </div>
     </div>
 
-    <div id="main-content" style="display:none;" class="main-wrapper">
+    <div id="main-content" style="display:none;">
         <div class="sub-header">
             <div>
-                <h3 style="margin:0; color: var(--primary);">Fluxo De Notas</h3>
-                <small>Logado: <strong id="user-display"></strong> | <a href="#" onclick="location.reload()">Sair</a></small>
+                <h2 style="margin:0;">Controle de Notas</h2>
+                <small>Usuário: <b id="user-display"></b> | <a href="#" onclick="location.reload()">Trocar usuário</a></small>
             </div>
             
             <div style="display: flex; gap: 10px; align-items: center;">
-                <div class="competencia-selector">
-                    <span>Mês:</span>
-                    <select id="mes-select" onchange="renderizar()"></select>
-                    <span>Ano:</span>
-                    <select id="ano-select" onchange="renderizar()"></select>
-                </div>
-                
-                <div class="competencia-selector" style="background: #fdeaea;">
-                    <select id="reset-select" style="padding: 5px; border-radius: 4px;">
-                        <option value="">-- Limpar Fornecedor --</option>
-                        <option value="ALL">LIMPAR TODOS</option>
-                    </select>
-                    <button class="btn-reset-tool" onclick="limparDados()">Limpar</button>
-                </div>
+                <select id="mes-select" class="btn" onchange="carregarEApp()"></select>
+                <select id="ano-select" class="btn" onchange="carregarEApp()"></select>
+                <button class="btn" style="background: var(--danger); color: white;" onclick="limparDados()">Limpar Seleção</button>
             </div>
         </div>
+
         <div class="container" id="cards-container"></div>
     </div>
 
-    <div class="hms-bar hms-footer">© Copyright 2026 - Hospital Estadual de Cuidados Paliativos</div>
-
 <script>
-    const BIN_ID = "69a5ed9b43b1c97be9aceb72"; 
-    const API_KEY = "$2a$10$10Z16S9LZYppQUvS3XQ8dOGXgtHvnr.OykT441FnHnEMNBwN1AbN6";
-    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    const CONFIG = {
+        BIN_ID: "69a5ed9b43b1c97be9aceb72",
+        API_KEY: "$2a$10$10Z16S9LZYppQUvS3XQ8dOGXgtHvnr.OykT441FnHnEMNBwN1AbN6",
+        URL: "https://api.jsonbin.io/v3/b/69a5ed9b43b1c97be9aceb72"
+    };
 
-    let usuarioAtual = "";
+    let dbCache = {};
+    let user = "";
     const fornecedores = ["Infosol", "Maxcomp", "CPC", "Service Power", "Embratel", "ITS", "Remessa", "MRJ", "Robson", "TecnoAtiva", "TLD", "VIVO"];
-    const etapas = ["NF Chegou", "Rateio Feito", "Assinado (NF+Rateio)", "Enviado p/ Pagamento"];
-    const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const etapas = ["NF Chegou", "Rateio Feito", "NF + Rateio Assinados", "Enviado p/ Pagamento"];
 
-    // Iniciar seletores
+    // Init Selects
     const d = new Date();
     const mesSel = document.getElementById('mes-select');
     const anoSel = document.getElementById('ano-select');
-    const resetSel = document.getElementById('reset-select');
 
-    mesesNomes.forEach((mes, i) => {
-        const valor = (i + 1).toString().padStart(2, '0');
-        mesSel.innerHTML += `<option value="${valor}" ${i == d.getMonth() ? 'selected' : ''}>${mes}</option>`;
+    ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"].forEach((m, i) => {
+        mesSel.innerHTML += `<option value="${(i+1).toString().padStart(2,'0')}" ${i==d.getMonth()?'selected':''}>${m}</option>`;
     });
-
-    [2025, 2026, 2027].forEach(a => {
-        anoSel.innerHTML += `<option value="${a}" ${a == d.getFullYear() ? 'selected' : ''}>${a}</option>`;
-    });
-
-    // Preencher o seletor de limpeza
-    fornecedores.forEach(f => {
-        resetSel.innerHTML += `<option value="${f}">${f}</option>`;
-    });
-
-    async function fazerLogin(nome) {
-        usuarioAtual = nome;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('user-display').innerText = nome;
-        await renderizar();
-    }
-
-    async function fetchDB() {
-        document.getElementById('loading').style.display = 'block';
-        try {
-            const res = await fetch(`${API_URL}/latest`, { headers: { "X-Master-Key": API_KEY } });
-            const data = await res.json();
-            return data.record || {};
-        } catch (e) { return {}; }
-        finally { document.getElementById('loading').style.display = 'none'; }
-    }
-
-    async function saveDB(data) {
-        document.getElementById('loading').style.display = 'block';
-        await fetch(API_URL, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', "X-Master-Key": API_KEY },
-            body: JSON.stringify(data)
-        });
-        document.getElementById('loading').style.display = 'none';
-    }
-
-    function getID(f) { return `${f}_${mesSel.value}_${anoSel.value}`; }
-
-    async function renderizar() {
-        const container = document.getElementById('cards-container');
-        container.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">Sincronizando com a nuvem...</p>';
-        const db = await fetchDB();
-        container.innerHTML = '';
-
-        fornecedores.forEach(f => {
-            const id = getID(f);
-            const data = db[id] || { checks: [false, false, false, false], logs: [], fileContent: null, observacao: "" };
-            
-            let card = document.createElement('div');
-            card.className = 'card';
-            let html = `<h3>${f}</h3>`;
-            
-            etapas.forEach((nome, idx) => {
-                const checked = data.checks[idx];
-                const habilitado = idx === 0 || data.checks[idx-1];
-                
-                html += `
-                    <div class="step ${checked ? 'locked' : (habilitado ? '' : 'disabled')}">
-                        <input type="checkbox" 
-                            ${checked ? 'checked disabled' : ''} 
-                            ${!checked && habilitado ? '' : 'disabled'} 
-                            onchange="confirmar('${f}', ${idx})">
-                        <label>${nome}</label>
-                    </div>`;
-
-                if (idx === 1) {
-                    html += `
-                    <div class="file-box" style="${habilitado ? '' : 'opacity: 0.5;'}">
-                        <small>📎 Rateio:</small><br>
-                        ${checked ? '' : `<input type="file" onchange="processarArquivo('${f}', this)" ${habilitado ? '' : 'disabled'} style="width:100%; font-size:0.7em;">`}
-                        ${data.fileContent ? `<button onclick="abrirArquivo('${f}')" class="btn-view">👁️ Abrir</button>` : ''}
-                    </div>`;
-                }
-            });
-
-            html += `
-                <div class="obs-section">
-                    <textarea id="obs-${f}" rows="2" placeholder="Notas...">${data.observacao || ''}</textarea>
-                    <button class="btn-obs" onclick="salvarObs('${f}')">Salvar Nota</button>
-                </div>
-                <div class="log-list">${data.logs.length > 0 ? data.logs.join('<br>') : 'Sem histórico'}</div>`;
-            
-            card.innerHTML = html;
-            container.appendChild(card);
-        });
-    }
-
-    async function confirmar(f, idx) {
-        if(!confirm(`Confirmar etapa "${etapas[idx]}"?`)) { await renderizar(); return; }
-        const db = await fetchDB();
-        const id = getID(f);
-        if(!db[id]) db[id] = { checks:[false,false,false,false], logs:[], observacao:"" };
-        db[id].checks[idx] = true;
-        db[id].logs.unshift(`[${new Date().toLocaleString()}] <b>${usuarioAtual}</b>: ${etapas[idx]}`);
-        await saveDB(db);
-        await renderizar();
-    }
-
-    async function salvarObs(f) {
-        const db = await fetchDB();
-        const id = getID(f);
-        const txt = document.getElementById(`obs-${f}`).value;
-        if(!db[id]) db[id] = { checks:[false,false,false,false], logs:[], observacao:"" };
-        db[id].observacao = txt;
-        db[id].logs.unshift(`[${new Date().toLocaleString()}] <b>${usuarioAtual}</b> editou notas.`);
-        await saveDB(db);
-        await renderizar();
-    }
-
-    async function limparDados() {
-        const alvo = resetSel.value;
-        if (!alvo) { alert("Selecione um fornecedor para limpar."); return; }
-        
-        const msg = alvo === "ALL" ? "TEM CERTEZA? Isso apagará os dados de TODOS os fornecedores desta competência!" : `Deseja apagar os dados de ${alvo}?`;
-        
-        if (confirm(msg)) {
-            const db = await fetchDB();
-            if (alvo === "ALL") {
-                fornecedores.forEach(f => { delete db[getID(f)]; });
-            } else {
-                delete db[getID(alvo)];
-            }
-            await saveDB(db);
-            alert("Dados limpos com sucesso!");
-            await renderizar();
-        }
-    }
-
-    async function processarArquivo(f, input) {
-        if (input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const db = await fetchDB();
-                const id = getID(f);
-                if(!db[id]) db[id] = { checks:[false,false,false,false], logs:[] };
-                db[id].fileContent = e.target.result;
-                db[id].logs.unshift(`[${new Date().toLocaleString()}] <b>${usuarioAtual}</b> anexou arquivo.`);
-                await saveDB(db);
-                await renderizar();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    async function abrirArquivo(f) {
-        const db = await fetchDB();
-        const content = db[getID(f)]?.fileContent;
-        if (content) {
-            const win = window.open();
-            win.document.write(`<iframe src="${content}" frameborder="0" style="width:100%; height:100vh;"></iframe>`);
-        }
-    }
-</script>
-</body>
-</html>
+    [2025, 2026].forEach
